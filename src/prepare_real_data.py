@@ -1,4 +1,3 @@
-# src/prepare_real_data.py
 
 import json
 import gzip
@@ -8,7 +7,7 @@ from pathlib import Path
 RAW_DATA_PATH = "real_data/goodreads_reviews_fantasy_paranormal.json.gz"
 OUTPUT_CSV = "data/goodreads_reviews_sample.csv"
 
-MAX_ROWS = 100_000  # keep it safe for your Mac
+MAX_ROWS = 100_000  
 
 
 def extract_reviews():

@@ -1,183 +1,148 @@
-import nltk
-import numpy as np
-from nltk.sentiment import SentimentIntensityAnalyzer
-from sklearn.feature_extraction.text import TfidfVectorizer
+# import numpy as np
+# from scipy.sparse import hstack
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.preprocessing import StandardScaler
 
-
-def add_popularity_label(df, threshold=1.0):
-    """
-    Adds a binary popularity label based on engagement.
-    popular = 1 if (n_votes + n_comments) >= threshold else 0
-    """
-
-    df = df.copy()
-
-    df["total_engagement"] = df["n_votes"] + df["n_comments"]
-    df["popular"] = (df["total_engagement"] >= threshold).astype(int)
-
-    print(f"Popularity threshold (>=): {threshold}")
-    print(df["popular"].value_counts())
-
-    return df
-
-
-def add_text_features(df):
-    """
-    Add simple text-based features:
-    - number of words
-    - average word length
-    - sentiment score
-    """
-
-    df = df.copy()
-
-    df["num_words"] = df["review_text"].astype(str).apply(
-        lambda x: len(x.split())
-    )
-
-    df["avg_word_length"] = df["review_text"].astype(str).apply(
-        lambda x: sum(len(w) for w in x.split()) / max(len(x.split()), 1)
-    )
-
-    nltk.download("vader_lexicon", quiet=True)
-    sia = SentimentIntensityAnalyzer()
-
-    df["sentiment"] = df["review_text"].astype(str).apply(
-        lambda x: sia.polarity_scores(x)["compound"]
-    )
-
-    return df
-
-
-def get_tfidf_features(text_series, max_features=5000):
-    """
-    Convert review text into TF-IDF features
-    """
-
-    vectorizer = TfidfVectorizer(
-        max_features=max_features,
-        stop_words="english"
-    )
-
-    X = vectorizer.fit_transform(text_series.astype(str))
-
-    return X, vectorizer
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# import pandas as pd
-
-# def add_popularity_label(df, threshold=0.5):
-
+# def add_popularity_label(df):
 #     """
-#     Adds two columns:
-#     1. total_engagement = likes + comments
-#     2. popular = 1 if likes_share > threshold else 0
+#     Dataset already contains the popularity label.
+#     This function simply ensures it exists and is binary.
 #     """
+#     df = df.copy()
 
-#     # total likes + comments for each review
-#     df["total_engagement"] = df["likes"] + df["comments"]
+#     if "popular" not in df.columns:
+#         raise ValueError("Expected 'popular' column not found in dataset")
 
-#     # total engagement per book
-#     book_totals = df.groupby("book_id")["total_engagement"].transform("sum")
-
-#     # share of engagement
-#     df["likes_share"] = df["total_engagement"] / book_totals
-
-#     # popularity label
-#     df["popular"] = (df["likes_share"] > threshold).astype(int)
-
+#     df["popular"] = df["popular"].astype(int)
 #     return df
-
-
-# import nltk
-# from nltk.sentiment import SentimentIntensityAnalyzer
-
-# # download required data once
-# nltk.download("vader_lexicon")
 
 # def add_text_features(df):
 #     """
-#     Adds basic text features:
-#     - num_words
-#     - avg_word_length
-#     - sentiment score
+#     Text-derived features already exist in the dataset.
+#     This function is kept for pipeline consistency.
 #     """
+#     required = ["num_words", "avg_word_length", "sentiment"]
+#     missing = [c for c in required if c not in df.columns]
 
-#     sia = SentimentIntensityAnalyzer()
-
-#     # number of words in review
-#     df["num_words"] = df["review_text"].apply(
-#         lambda x: len(x.split())
-#     )
-
-#     # average word length
-#     df["avg_word_length"] = df["review_text"].apply(
-#         lambda x: sum(len(word) for word in x.split()) / len(x.split())
-#     )
-
-#     # sentiment score (-1 = negative, +1 = positive)
-#     df["sentiment"] = df["review_text"].apply(
-#         lambda x: sia.polarity_scores(x)["compound"]
-#     )
+#     if missing:
+#         raise ValueError(f"Missing required text features: {missing}")
 
 #     return df
 
 
-# from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-
-# def get_bow_features(text_series, max_features=20):
-#     """
-#     Converts text into Bag of Words features
-#     """
-#     bow = CountVectorizer(
-#         stop_words="english",
-#         max_features=max_features
-#     )
-#     bow_matrix = bow.fit_transform(text_series)
-#     return bow_matrix, bow.get_feature_names_out()
-
-
-# def get_tfidf_features(text_series, max_features=20):
-#     """
-#     Converts text into TF-IDF features
-#     """
+# def get_tfidf_features(train_text, test_text, max_features=5000):
 #     tfidf = TfidfVectorizer(
+#         max_features=max_features,
 #         stop_words="english",
-#         max_features=max_features
+#         ngram_range=(1, 2)
 #     )
-#     tfidf_matrix = tfidf.fit_transform(text_series)
-#     return tfidf_matrix, tfidf.get_feature_names_out()
+#     X_train_text = tfidf.fit_transform(train_text)
+#     X_test_text = tfidf.transform(test_text)
+#     return X_train_text, X_test_text
+
+# def build_features(train_df, test_df, feature_subset):
+#     X_train_text, X_test_text = get_tfidf_features(
+#         train_df["review_text"],
+#         test_df["review_text"]
+#     )
+
+#     if feature_subset == "A":
+#         return X_train_text, X_test_text
+
+#     meta_cols = ["num_words"]
+
+#     if feature_subset == "C":
+#         meta_cols.extend(["avg_word_length", "sentiment", "rating"])
+
+#     from sklearn.preprocessing import StandardScaler
+#     from scipy.sparse import hstack
+
+#     scaler = StandardScaler()
+
+#     X_train_meta = scaler.fit_transform(train_df[meta_cols])
+#     X_test_meta = scaler.transform(test_df[meta_cols])
+
+#     X_train = hstack([X_train_text, X_train_meta])
+#     X_test = hstack([X_test_text, X_test_meta])
+
+#     return X_train, X_test
+
+
+# # import numpy as np
+
+# # # -------------------------------------------------
+# # # Sentiment (simple, deterministic, dependency-free)
+# # # -------------------------------------------------
+# # def get_sentiment_score(text):
+# #     if not isinstance(text, str) or text.strip() == "":
+# #         return 0.0
+
+# #     positive_words = ["good", "great", "amazing", "love", "excellent", "best"]
+# #     negative_words = ["bad", "worst", "boring", "hate", "terrible", "awful"]
+
+# #     text = text.lower()
+# #     score = 0
+
+# #     for w in positive_words:
+# #         if w in text:
+# #             score += 1
+# #     for w in negative_words:
+# #         if w in text:
+# #             score -= 1
+
+# #     return score
+
+
+# # # -------------------------------------------------
+# # # BUILD features (used everywhere)
+# # # -------------------------------------------------
+# # def build_text_features(df, text_col="review_text"):
+# #     if text_col not in df.columns:
+# #         raise ValueError(f"Expected column '{text_col}'")
+
+# #     df = df.copy()
+
+# #     df["num_words"] = df[text_col].apply(lambda x: len(x.split()))
+# #     df["avg_word_length"] = df[text_col].apply(
+# #         lambda x: np.mean([len(w) for w in x.split()]) if len(x.split()) > 0 else 0.0
+# #     )
+# #     df["sentiment"] = df[text_col].apply(get_sentiment_score)
+
+# #     return df
+
+
+# # # -------------------------------------------------
+# # # VALIDATE features (used only in experiments)
+# # # -------------------------------------------------
+# # def validate_text_features(df):
+# #     required = ["num_words", "avg_word_length", "sentiment"]
+# #     missing = [c for c in required if c not in df.columns]
+
+# #     if missing:
+# #         raise ValueError(f"Missing required text features: {missing}")
+
+
+
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import hstack
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+def build_features(train_df, test_df, feature_subset):
+    """
+    Feature Subset:
+    A -> Text only
+    B -> Text only + basic numeric features
+    C -> Text only + all numeric features
+    """
+
+    tfidf = TfidfVectorizer(
+        max_features=5000,
+        stop_words="english"
+    )
+
+    X_train = tfidf.fit_transform(train_df["review_text"])
+    X_test = tfidf.transform(test_df["review_text"])
+
+    return X_train, X_test

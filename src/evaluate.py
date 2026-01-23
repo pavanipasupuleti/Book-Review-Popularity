@@ -1,3 +1,4 @@
+
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
@@ -35,3 +36,12 @@ def compute_roc(y_true, y_prob):
     """
     fpr, tpr, thresholds = roc_curve(y_true, y_prob)
     return fpr, tpr, thresholds
+
+from sklearn.metrics import classification_report, confusion_matrix
+
+def evaluate(y_true, y_pred):
+    print("\nEvaluation Results")
+    print(classification_report(y_true, y_pred, digits=4))
+
+    print("\nConfusion Matrix")
+    print(confusion_matrix(y_true, y_pred))
