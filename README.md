@@ -160,11 +160,6 @@ source venv/bin/activate        # macOS
 venv\Scripts\activate           # Windows
 ```
 
-### Step 3: Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
 
 ---
 
