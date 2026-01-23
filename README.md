@@ -109,36 +109,36 @@ Book-Review-Popularity/
 
 ## File Description
 
-* **prepare_real_data.py**
+* **prepare_real_data.py**:
   Converts raw Goodreads JSON data into structured CSV format.
 
-* **preprocess_data.py**
+* **preprocess_data.py**:
   Adds popularity labels and basic text-based features.
 
-* **features.py**
+* **features.py**:
   Implements feature engineering, including:
 
   * Sentiment analysis
   * TF-IDF vectorization
   * Statistical text features
 
-* **train.py**
+* **train.py**:
   Trains and compares Logistic Regression, XGBoost, and Neural Network models.
 
-* **train_and_save_model.py**
+* **train_and_save_model.py**:
   Trains the final Logistic Regression model and saves:
 
   * Trained model
   * TF-IDF vectorizer
   * Feature scaler
 
-* **evaluate.py**
+* **evaluate.py**:
   Computes evaluation metrics such as accuracy, sensitivity, specificity, and AUC.
 
-* **run_experiments.py**
+* **run_experiments.py**:
   Runs experiments with different feature subsets and records results.
 
-* **predict_review.py**
+* **predict_review.py**:
   Accepts a user-entered review and predicts whether it is popular or not.
 
 ---
