@@ -241,7 +241,7 @@ The system outputs:
 * Review popularity depends more on structure and engagement patterns than sentiment alone.
 * The system demonstrates a practical application of machine learning for real-world text analytics.
 
--------------
+---------------
 
 ## Results
 
