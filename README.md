@@ -6,14 +6,6 @@ Online platforms such as Goodreads host millions of user-generated book reviews,
 
 This project addresses the problem of **predicting the popularity of a book review based solely on its text content and derived features**. The task is formulated as a **binary classification problem** using machine learning techniques.
 
----
-
-## Team Members
-
-* **Pallavi K G** – PES1PG25CS046
-* **Pasupuleti Pavani** – PES1PG25CS047
-
----
 
 ## Problem Statement
 
